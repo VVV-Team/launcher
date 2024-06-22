@@ -1,7 +1,23 @@
 from subprocess import call
-from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSettings, QUrl, QTimer, QSize, QPropertyAnimation, QEasingCurve
+from PyQt5.QtWidgets import (
+    QMainWindow, QApplication, QWidget, QLabel, QLineEdit, QComboBox,
+    QPushButton, QVBoxLayout, QHBoxLayout, QSpacerItem, QSizePolicy, QFileDialog,
+    QFrame, QGridLayout, QMessageBox,
+    QStyleFactory, QTabWidget,
+    QSpinBox, QCheckBox, QStyle, QStyleOption,
+    QGraphicsDropShadowEffect, QListWidget, QInputDialog
+)
+from PyQt5.QtGui import QFont, QIcon, QPixmap, QColor, QPainter, QPen, QLinearGradient, QPalette
+
+from minecraft_launcher_lib.utils import get_minecraft_directory, get_version_list, get_installed_versions
 from minecraft_launcher_lib.install import install_minecraft_version
+from minecraft_launcher_lib.command import get_minecraft_command
+
+from random_username.generate import generate_username
+from uuid import uuid1
+from sys import argv, exit
+import os
 
 class LaunchThread(QThread):
     launch_setup_signal = pyqtSignal(str, str, int)

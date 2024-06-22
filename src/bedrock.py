@@ -26,7 +26,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("Bedrock Launcher")
+        self.setWindowTitle(LAUNCHER_NAME)
         self.setMinimumSize(500, 450)
         self.setWindowFlags(
             Qt.WindowMinimizeButtonHint | Qt.WindowCloseButtonHint
@@ -37,8 +37,7 @@ class MainWindow(QMainWindow):
         """)
 
         # --- Set Icon ---
-        # Че за бред?
-        #self.setWindowIcon(QIcon("C:/Users/User/Desktop/Bedrock Launcher/V3 new/1.ico"))
+        self.setWindowIcon(QIcon("../images/favicon.ico"))
 
         # --- Central Widget ---
         self.centralwidget = QWidget(self)
@@ -52,13 +51,13 @@ class MainWindow(QMainWindow):
         # --- Logo ---
         self.logo_label = QLabel(self.centralwidget)
         self.logo_label.setAlignment(Qt.AlignCenter)
-        #pixmap = QPixmap("C:/Users/User/Desktop/Bedrock Launcher/V3 new/121banner.png")  # Replace with your logo path
-        #self.logo_label.setPixmap(pixmap.scaledToWidth(800))  # Adjust width as needed
+        pixmap = QPixmap("../images/banner.png")
+        self.logo_label.setPixmap(pixmap.scaledToWidth(1024)) # Adjust width as needed
         self.main_layout.addWidget(self.logo_label)
 
         # --- Title Label ---
         self.title_label = QLabel(
-            "Bedrock Launcher", self.centralwidget
+            LAUNCHER_NAME, self.centralwidget
         )
         self.title_label.setAlignment(Qt.AlignCenter)
         self.title_label.setStyleSheet(
@@ -72,7 +71,7 @@ class MainWindow(QMainWindow):
 
         # --- Settings ---
         self.settings = QSettings(
-            "MyCompany", "Bedrock Launcher"
+            COMPANY_NAME, LAUNCHER_NAME
         )
         self.install_directory = self.settings.value(
             "install_directory", get_minecraft_directory()
@@ -342,6 +341,7 @@ class MainWindow(QMainWindow):
             1.0, QColor("#4ca1af")
         )  # Второй цвет градиента
         painter.fillRect(self.rect(), gradient)
+        painter.end()
 
 if __name__ == "__main__":
     app = QApplication(argv)

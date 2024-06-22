@@ -80,7 +80,7 @@ class InstallDirectoryWidget(QWidget):
 
     def __init__(self, parent=None):
         super(InstallDirectoryWidget, self).__init__(parent)
-        self.settings = QSettings("MyCompany", "Bedrock Launcher")
+        self.settings = QSettings(COMPANY_NAME, LAUNCHER_NAME)
         self.install_label = QLabel("Select installation directory:", self)
         self.install_label.setAlignment(Qt.AlignCenter)
         self.install_label.setStyleSheet(
@@ -118,7 +118,7 @@ class InstallDirectoryWidget(QWidget):
 class MemorySettingsWidget(QWidget):
     def __init__(self, parent=None):
         super(MemorySettingsWidget, self).__init__(parent)
-        self.settings = QSettings("MyCompany", "Bedrock Launcher")
+        self.settings = QSettings(COMPANY_NAME, LAUNCHER_NAME)
 
         self.memory_label = QLabel("Allocate RAM (MB):", self)
         self.memory_label.setStyleSheet(
@@ -163,7 +163,7 @@ class MemorySettingsWidget(QWidget):
 class GraphicsSettingsWidget(QWidget):
     def __init__(self, parent=None):
         super(GraphicsSettingsWidget, self).__init__(parent)
-        self.settings = QSettings("MyCompany", "Bedrock Launcher")
+        self.settings = QSettings(COMPANY_NAME, LAUNCHER_NAME)
 
         self.quality_label = QLabel(
             "Graphics Quality:", self

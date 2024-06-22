@@ -8,3 +8,5 @@ RED = "#b45063"  # Red for errors
 BLUE = "#61afef"  # Blue for active elements
 BORDER_COLOR = "#4c566a"  # Border color
 PROGRESS_BAR_COLOR = "#61afef"  # Blue for progress bar
+COMPANY_NAME = "MyCompany"
+LAUNCHER_NAME = "Bedrock Launcher"
