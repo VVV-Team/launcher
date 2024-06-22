@@ -17,10 +17,69 @@ from random_username.generate import generate_username
 from uuid import uuid1
 from sys import argv, exit
 import os
+import requests
 
 from constants import *
 from widgets import RoundedWidget, RoundedButton, InstallDirectoryWidget, MemorySettingsWidget, GraphicsSettingsWidget, TabWidget, ModManagerTab
 from threads import LaunchThread
+
+def get_forge_versions():
+    url = "https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        versions = data.get('promos', {})
+        return versions
+    else:
+        print("Failed to retrieve Forge versions")
+        return None
+
+def get_fabric_versions():
+    url = "https://meta.fabricmc.net/v2/versions/loader"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        versions = [entry['version'] for entry in data]
+        return versions
+    else:
+        print("Failed to retrieve Fabric versions")
+        return None
+
+def get_forge_download_link(mc_version):
+    url = "https://files.minecraftforge.net/maven/net/minecraftforge/forge/promotions_slim.json"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        versions = data.get('promos', {})
+        for version, build in versions.items():
+            if version.startswith(mc_version + "-"):
+                return f"https://files.minecraftforge.net/maven/net/minecraftforge/forge/{version}/forge-{version}-installer.jar"
+    else:
+        print("Failed to retrieve Forge download link")
+        return None
+
+def get_fabric_download_link(mc_version):
+    url = "https://meta.fabricmc.net/v2/versions/loader"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        for entry in data:
+            if entry['loader']['version'] == mc_version:
+                return entry['loader']['build']
+    else:
+        print("Failed to retrieve Fabric download link")
+        return None
+
+def download_file(url, path):
+    response = requests.get(url, stream=True)
+    if response.status_code == 200:
+        with open(path, 'wb') as file:
+            for chunk in response.iter_content(chunk_size=1024):
+                if chunk:
+                    file.write(chunk)
+        print(f"Downloaded {path}")
+    else:
+        print(f"Failed to download {url}")
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -95,6 +154,10 @@ class MainWindow(QMainWindow):
         self.update_installed_versions(
             self.install_directory_widget.install_directory
         )  # Передаем текущую директорию
+
+        self.forge_versions = {}
+        self.fabric_versions = {}
+        self.update_available_versions()
 
     def create_launch_tab(self):
         self.launch_tab = QWidget()
@@ -179,6 +242,19 @@ class MainWindow(QMainWindow):
             self.installed_versions_combobox
         )
 
+        # --- Version Type Select ---
+        self.version_type_select = QComboBox(self.launch_tab)
+        self.version_type_select.setStyleSheet(f"""
+            color: {TEXT_COLOR}; 
+            border: 1px solid {ACCENT_COLOR}; 
+            border-radius: 5px; 
+            padding: 5px;
+            background-color: {MAIN_COLOR};
+        """)
+        self.version_type_select.addItems(["Vanilla", "Forge", "Fabric"])
+        self.version_type_select.currentIndexChanged.connect(self.update_version_select)
+        self.launch_tab_layout.addWidget(self.version_type_select)
+
         # --- Version Select ---
         self.version_select = QComboBox(self.launch_tab)
         self.version_select.setStyleSheet(f"""
@@ -188,13 +264,6 @@ class MainWindow(QMainWindow):
             padding: 5px;
             background-color: {MAIN_COLOR};
         """)
-        for version in get_version_list():
-            self.version_select.addItem(version["id"])
-        self.version_select.setCurrentText(
-            self.settings.value(
-                "version", self.version_select.itemText(0)
-            )
-        )
         self.launch_tab_layout.addWidget(
             self.version_select
         )
@@ -276,11 +345,22 @@ class MainWindow(QMainWindow):
         self.progress_label.setVisible(value)
 
     def launch_game(self):
+        version_type = self.version_type_select.currentText()
         version_id = self.get_minecraft_version()
         username = self.username.text()
         memory_mb = (
             self.memory_settings_widget.memory_spinbox.value()
         )
+
+        if version_type == "Forge":
+            forge_link = get_forge_download_link(version_id)
+            if forge_link:
+                download_file(forge_link, os.path.join(self.install_directory, f"forge-{version_id}-installer.jar"))
+        elif version_type == "Fabric":
+            fabric_link = get_fabric_download_link(version_id)
+            if fabric_link:
+                download_file(fabric_link, os.path.join(self.install_directory, f"fabric-loader-{version_id}.jar"))
+
         self.launch_thread.launch_setup_signal.emit(
             version_id, username, memory_mb
         )
@@ -317,16 +397,26 @@ class MainWindow(QMainWindow):
             self.update_version_select
         )
 
-    def update_version_select(self, index):
-        selected_version = (
-            self.installed_versions_combobox.itemText(index)
-        )
-        selected_version = selected_version.split(" (")[
-            0
-        ]  # Удаляем " (installed)"
-        self.version_select.setCurrentText(
-            selected_version
-        )
+    def update_version_select(self, index=None):
+        self.version_select.clear()
+
+        version_type = self.version_type_select.currentText()
+        if version_type == "Vanilla":
+            for version in get_version_list():
+                self.version_select.addItem(version["id"])
+        elif version_type == "Forge":
+            for version in self.forge_versions.keys():
+                self.version_select.addItem(version)
+        elif version_type == "Fabric":
+            for version in self.fabric_versions:
+                self.version_select.addItem(version)
+
+        self.version_select.setCurrentIndex(0)
+
+    def update_available_versions(self):
+        self.forge_versions = get_forge_versions()
+        self.fabric_versions = get_fabric_versions()
+        self.update_version_select()
 
     def paintEvent(self, event):
         # Рисуем градиент на фоне
