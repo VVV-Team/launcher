@@ -1,0 +1,10 @@
+MAIN_COLOR = "#282c34"  # Dark gray
+ACCENT_COLOR = "#4c566a"  # Light gray
+TEXT_COLOR = "#d8dee9"  # Light gray for text
+DARK_GRAY = "#222222"  # Dark gray for shadows
+LIGHT_GRAY = "#333333"  # Light gray for background
+GREEN = "#46a65e"  # Green for buttons
+RED = "#b45063"  # Red for errors
+BLUE = "#61afef"  # Blue for active elements
+BORDER_COLOR = "#4c566a"  # Border color
+PROGRESS_BAR_COLOR = "#61afef"  # Blue for progress bar
