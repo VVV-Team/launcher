@@ -401,15 +401,25 @@ class MainWindow(QMainWindow):
         self.version_select.clear()
 
         version_type = self.version_type_select.currentText()
+        installed_versions_list = get_installed_versions(self.install_directory_widget.install_directory)
         if version_type == "Vanilla":
-            for version in get_version_list():
-                self.version_select.addItem(version["id"])
+            for version in get_version_list():    
+                version_id = version["id"]
+                if version in installed_versions_list:
+                    version_id = f"(installed) {version_id}"
+                self.version_select.addItem(version_id)
         elif version_type == "Forge":
             for version in self.forge_versions.keys():
-                self.version_select.addItem(version)
+                version_id = version["id"]
+                if version in installed_versions_list:
+                    version_id = f"(installed) {version_id}"
+                self.version_select.addItem(version_id)
         elif version_type == "Fabric":
             for version in self.fabric_versions:
-                self.version_select.addItem(version)
+                version_id = version["id"]
+                if version in installed_versions_list:
+                    version_id = f"(installed) {version_id}"
+                self.version_select.addItem(version_id)
 
         self.version_select.setCurrentIndex(0)
 
