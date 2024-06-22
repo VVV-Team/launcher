@@ -40,4 +40,4 @@ python bedrock.py
 
 ### Лицензия
 
-todo: определиться с лицензией
+MIT LICENSE
