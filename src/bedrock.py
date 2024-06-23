@@ -86,7 +86,7 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle(LAUNCHER_NAME)
-        self.setMinimumSize(500, 450)
+        self.setMinimumSize(500, 750)
         self.setWindowFlags(
             Qt.WindowMinimizeButtonHint | Qt.WindowCloseButtonHint
         )
@@ -346,7 +346,7 @@ class MainWindow(QMainWindow):
 
     def launch_game(self):
         version_type = self.version_type_select.currentText()
-        version_id = self.get_minecraft_version()
+        version_id = self.get_minecraft_version().replace("(installed) ", '')
         username = self.username.text()
         memory_mb = (
             self.memory_settings_widget.memory_spinbox.value()
