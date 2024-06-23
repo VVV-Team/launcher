@@ -86,7 +86,7 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle(LAUNCHER_NAME)
-        self.setMinimumSize(500, 450)
+        self.setMinimumSize(500, 750)
         self.setWindowFlags(
             Qt.WindowMinimizeButtonHint | Qt.WindowCloseButtonHint
         )
@@ -346,7 +346,7 @@ class MainWindow(QMainWindow):
 
     def launch_game(self):
         version_type = self.version_type_select.currentText()
-        version_id = self.get_minecraft_version()
+        version_id = self.get_minecraft_version().replace("(installed) ", '')
         username = self.username.text()
         memory_mb = (
             self.memory_settings_widget.memory_spinbox.value()
@@ -409,17 +409,16 @@ class MainWindow(QMainWindow):
                     version_id = f"(installed) {version_id}"
                 self.version_select.addItem(version_id)
         elif version_type == "Forge":
-            for version in self.forge_versions.keys():
-                version_id = version["id"]
-                if version in installed_versions_list:
+            for version_id in self.forge_versions.keys():  # Directly iterate over version strings
+                if version_id in installed_versions_list:
                     version_id = f"(installed) {version_id}"
                 self.version_select.addItem(version_id)
         elif version_type == "Fabric":
-            for version in self.fabric_versions:
-                version_id = version["id"]
-                if version in installed_versions_list:
+            for version_id in self.fabric_versions:  # Directly iterate over version strings
+                if version_id in installed_versions_list:
                     version_id = f"(installed) {version_id}"
                 self.version_select.addItem(version_id)
+
 
         self.version_select.setCurrentIndex(0)
 
