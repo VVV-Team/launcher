@@ -409,17 +409,16 @@ class MainWindow(QMainWindow):
                     version_id = f"(installed) {version_id}"
                 self.version_select.addItem(version_id)
         elif version_type == "Forge":
-            for version in self.forge_versions.keys():
-                version_id = version["id"]
-                if version in installed_versions_list:
+            for version_id in self.forge_versions.keys():  # Directly iterate over version strings
+                if version_id in installed_versions_list:
                     version_id = f"(installed) {version_id}"
                 self.version_select.addItem(version_id)
         elif version_type == "Fabric":
-            for version in self.fabric_versions:
-                version_id = version["id"]
-                if version in installed_versions_list:
+            for version_id in self.fabric_versions:  # Directly iterate over version strings
+                if version_id in installed_versions_list:
                     version_id = f"(installed) {version_id}"
                 self.version_select.addItem(version_id)
+
 
         self.version_select.setCurrentIndex(0)
 
