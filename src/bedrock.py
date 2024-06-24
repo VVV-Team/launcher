@@ -19,6 +19,7 @@ from uuid import uuid1
 from sys import argv, exit
 import os
 import requests
+import subprocess
 
 from constants import *
 from widgets import RoundedWidget, RoundedButton, InstallDirectoryWidget, MemorySettingsWidget, GraphicsSettingsWidget, TabWidget, ModManagerTab
@@ -116,7 +117,7 @@ class MainWindow(QMainWindow):
         self.logo_label = QLabel(self.centralwidget)
         self.logo_label.setAlignment(Qt.AlignCenter)
         pixmap = QPixmap("../images/banner.png")
-        self.logo_label.setPixmap(pixmap.scaledToWidth(1024)) 
+        self.logo_label.setPixmap(pixmap.scaledToWidth(1024)) # Adjust width as needed
         self.main_layout.addWidget(self.logo_label)
 
         # --- Title Label ---
@@ -158,7 +159,7 @@ class MainWindow(QMainWindow):
 
         self.update_installed_versions(
             self.install_directory_widget.install_directory
-        ) 
+        )
 
         self.forge_versions = {}
         self.fabric_versions = {}
@@ -205,9 +206,9 @@ class MainWindow(QMainWindow):
             "Enter your username"
         )
         self.username.setStyleSheet(f"""
-            color: {TEXT_COLOR}; 
-            border: 1px solid {ACCENT_COLOR}; 
-            border-radius: 5px; 
+            color: {TEXT_COLOR};
+            border: 1px solid {ACCENT_COLOR};
+            border-radius: 5px;
             padding: 5px;
             background-color: {MAIN_COLOR};
         """)
@@ -237,9 +238,9 @@ class MainWindow(QMainWindow):
             self.launch_tab
         )
         self.installed_versions_combobox.setStyleSheet(f"""
-            color: {TEXT_COLOR}; 
-            border: 1px solid {ACCENT_COLOR}; 
-            border-radius: 5px; 
+            color: {TEXT_COLOR};
+            border: 1px solid {ACCENT_COLOR};
+            border-radius: 5px;
             padding: 5px;
             background-color: {MAIN_COLOR};
         """)
@@ -250,9 +251,9 @@ class MainWindow(QMainWindow):
         # --- Version Type Select ---
         self.version_type_select = QComboBox(self.launch_tab)
         self.version_type_select.setStyleSheet(f"""
-            color: {TEXT_COLOR}; 
-            border: 1px solid {ACCENT_COLOR}; 
-            border-radius: 5px; 
+            color: {TEXT_COLOR};
+            border: 1px solid {ACCENT_COLOR};
+            border-radius: 5px;
             padding: 5px;
             background-color: {MAIN_COLOR};
         """)
@@ -263,15 +264,22 @@ class MainWindow(QMainWindow):
         # --- Version Select ---
         self.version_select = QComboBox(self.launch_tab)
         self.version_select.setStyleSheet(f"""
-            color: {TEXT_COLOR}; 
-            border: 1px solid {ACCENT_COLOR}; 
-            border-radius: 5px; 
+            color: {TEXT_COLOR};
+            border: 1px solid {ACCENT_COLOR};
+            border-radius: 5px;
             padding: 5px;
             background-color: {MAIN_COLOR};
         """)
         self.launch_tab_layout.addWidget(
             self.version_select
         )
+
+        # --- Checkbox для отображения консоли ---
+        self.show_console_checkbox = QCheckBox("Show Console", self.launch_tab)
+        self.show_console_checkbox.setStyleSheet(
+            f"color: {TEXT_COLOR}; font-size: 12px;"
+        )
+        self.launch_tab_layout.addWidget(self.show_console_checkbox)
 
         # --- Progress Label ---
         self.progress_label = QLabel(self.launch_tab)
@@ -366,10 +374,15 @@ class MainWindow(QMainWindow):
             if fabric_link:
                 download_file(fabric_link, os.path.join(self.install_directory, f"fabric-loader-{version_id}.jar"))
 
-        self.launch_thread.launch_setup_signal.emit(
-            version_id, username, memory_mb
-        )
-        self.launch_thread.start()
+        # Запуск игры с или без консоли
+        if self.show_console_checkbox.isChecked():
+            command = get_minecraft_command(version_id, username, memory_mb)
+            subprocess.Popen(command, creationflags=subprocess.CREATE_NEW_CONSOLE)
+        else:
+            self.launch_thread.launch_setup_signal.emit(
+                version_id, username, memory_mb
+            )
+            self.launch_thread.start()
 
     def get_minecraft_version(self):
         return self.version_select.currentText()
@@ -386,7 +399,7 @@ class MainWindow(QMainWindow):
             directory = (
                 self.install_directory_widget.install_directory
             )
-        self.launch_thread.wait() 
+        self.launch_thread.wait()
         self.update_installed_versions_combobox(
             directory
         )
@@ -414,12 +427,12 @@ class MainWindow(QMainWindow):
                     version_id = f"(installed) {version_id}"
                 self.version_select.addItem(version_id)
         elif version_type == "Forge":
-            for version_id in self.forge_versions.keys(): 
+            for version_id in self.forge_versions.keys():
                 if version_id in installed_versions_list:
                     version_id = f"(installed) {version_id}"
                 self.version_select.addItem(version_id)
         elif version_type == "Fabric":
-            for version_id in self.fabric_versions: 
+            for version_id in self.fabric_versions:
                 if version_id in installed_versions_list:
                     version_id = f"(installed) {version_id}"
                 self.version_select.addItem(version_id)
