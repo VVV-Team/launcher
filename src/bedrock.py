@@ -13,7 +13,8 @@ from minecraft_launcher_lib.utils import get_minecraft_directory, get_version_li
 from minecraft_launcher_lib.install import install_minecraft_version
 from minecraft_launcher_lib.command import get_minecraft_command
 
-from random_username.generate import generate_username
+import random
+import string
 from uuid import uuid1
 from sys import argv, exit
 import os
@@ -22,6 +23,10 @@ import requests
 from constants import *
 from widgets import RoundedWidget, RoundedButton, InstallDirectoryWidget, MemorySettingsWidget, GraphicsSettingsWidget, TabWidget, ModManagerTab
 from threads import LaunchThread
+
+def generate_username(length=12):
+    """Генерирует случайное имя пользователя."""
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
 def get_forge_versions():
     url = "https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json"
@@ -111,7 +116,7 @@ class MainWindow(QMainWindow):
         self.logo_label = QLabel(self.centralwidget)
         self.logo_label.setAlignment(Qt.AlignCenter)
         pixmap = QPixmap("../images/banner.png")
-        self.logo_label.setPixmap(pixmap.scaledToWidth(1024)) # Adjust width as needed
+        self.logo_label.setPixmap(pixmap.scaledToWidth(1024)) 
         self.main_layout.addWidget(self.logo_label)
 
         # --- Title Label ---
@@ -153,7 +158,7 @@ class MainWindow(QMainWindow):
 
         self.update_installed_versions(
             self.install_directory_widget.install_directory
-        )  # Передаем текущую директорию
+        ) 
 
         self.forge_versions = {}
         self.fabric_versions = {}
@@ -381,7 +386,7 @@ class MainWindow(QMainWindow):
             directory = (
                 self.install_directory_widget.install_directory
             )
-        self.launch_thread.wait()  # Ждем завершения потока перед обновлением версий
+        self.launch_thread.wait() 
         self.update_installed_versions_combobox(
             directory
         )
@@ -409,12 +414,12 @@ class MainWindow(QMainWindow):
                     version_id = f"(installed) {version_id}"
                 self.version_select.addItem(version_id)
         elif version_type == "Forge":
-            for version_id in self.forge_versions.keys():  # Directly iterate over version strings
+            for version_id in self.forge_versions.keys(): 
                 if version_id in installed_versions_list:
                     version_id = f"(installed) {version_id}"
                 self.version_select.addItem(version_id)
         elif version_type == "Fabric":
-            for version_id in self.fabric_versions:  # Directly iterate over version strings
+            for version_id in self.fabric_versions: 
                 if version_id in installed_versions_list:
                     version_id = f"(installed) {version_id}"
                 self.version_select.addItem(version_id)
@@ -435,10 +440,10 @@ class MainWindow(QMainWindow):
         )
         gradient.setColorAt(
             0.0, QColor("#2c3e50")
-        )  # Первый цвет градиента
+        ) 
         gradient.setColorAt(
             1.0, QColor("#4ca1af")
-        )  # Второй цвет градиента
+        ) 
         painter.fillRect(self.rect(), gradient)
         painter.end()
 
